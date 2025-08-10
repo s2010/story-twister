@@ -1,0 +1,591 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pixel Art Design System for AI Storytelling Game
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Mobile layout variables */
+    --input-height: 80px;
+
+    /* Pixel Art Background Colors */
+    --background: 201 100% 85%; /* Sky blue */
+    --foreground: 0 0% 0%; /* Black text for maximum readability */
+
+    /* Game Panel Colors */
+    --card: 0 0% 98%; /* Light panel background for contrast with black text */
+    --card-foreground: 0 0% 0%; /* Black text on light panels */
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 0%;
+
+    /* Primary Colors - Blue for user messages */
+    --primary: 208 100% 62%; /* Bright blue */
+    --primary-foreground: 0 0% 0%; /* Black text on primary */
+
+    /* Secondary Colors - Green for moderator */
+    --secondary: 122 39% 49%; /* Green */
+    --secondary-foreground: 0 0% 0%; /* Black text on secondary */
+
+    /* Muted Colors */
+    --muted: 240 17% 18%;
+    --muted-foreground: 0 0% 10%; /* Very dark gray for muted text */
+
+    /* Accent Colors - Red for AI twists */
+    --accent: 0 100% 63%; /* Bright red */
+    --accent-foreground: 0 0% 0%; /* Black text on accent */
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 0%; /* Black text on destructive */
+
+    /* Borders and inputs */
+    --border: 0 0% 0%; /* Pure black borders */
+    --input: 240 17% 13%;
+    --ring: 208 100% 62%;
+
+    --radius: 0; /* No rounded corners for pixel art */
+
+    /* Custom Pixel Art Colors */
+    --pixel-grass: 122 39% 49%;
+    --pixel-sky: 201 100% 85%;
+    --pixel-cloud: 0 0% 100%;
+    --pixel-panel: 240 17% 13%;
+    --pixel-border: 0 0% 0%;
+
+    /* Speech Bubble Colors */
+    --bubble-user: 208 100% 62%;
+    --bubble-ai: 0 100% 63%;
+    --bubble-mod: 122 39% 49%;
+
+    /* Text Shadow for Pixel Effect */
+    --text-shadow: 1px 1px 0 #000;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 0 0% 98%; /* White text on dark backgrounds */
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 98%; /* White text on dark cards */
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 98%; /* White text on dark popovers */
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%; /* Dark text on light primary */
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 0 0% 98%; /* White text on dark secondary */
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%; /* Light gray for muted text on dark */
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 0 0% 98%; /* White text on dark accent */
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%; /* White text on dark destructive */
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* Custom pixel scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground) / 0.8);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--foreground)) hsl(var(--muted));
+  }
+
+  /* Desktop and larger screens - use flexible layout */
+  @media (min-width: 601px) {
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100svh;
+    }
+
+    /* Content containers should be scrollable on desktop too */
+    .content-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+
+    /* Chat container for desktop */
+    .chat-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+
+    /* Input bar should be relative on desktop */
+    .input-bar {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+      width: auto;
+      height: auto;
+      z-index: auto;
+      background: transparent;
+      border-top: 1px solid hsl(var(--border));
+      padding: 1rem;
+      box-shadow: none;
+    }
+  }
+
+  /* Mobile screens ≤ 600px - fix viewport and enable scrolling */
+  @media (max-width: 600px) {
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+    }
+
+    /* App wrapper for all views */
+    #root {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: -webkit-fill-available;
+    }
+
+    /* Content containers should be scrollable with scroll chaining prevention */
+    .content-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+
+    /* Chat container specific layout */
+    .chat-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      padding-bottom: var(--input-height, 80px);
+    }
+
+    /* Input bar fixed to bottom */
+    .input-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
+      background: hsl(var(--background));
+      border-top: 2px solid hsl(var(--border));
+      padding: 8px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Make input elements smaller on mobile */
+    .input-bar .mobile-chat-input {
+      min-height: 32px !important;
+      max-height: 32px !important;
+      padding: 6px 8px !important;
+      font-size: 14px !important;
+    }
+
+    .input-bar button {
+      min-height: 32px !important;
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+    }
+
+    .input-bar .space-y-2 > * + * {
+      margin-top: 6px !important;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground font-pixel;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Pixel Art Component Styles */
+@layer components {
+  .pixel-border {
+    position: relative;
+    image-rendering: pixelated;
+    border: 4px solid hsl(var(--pixel-border));
+    box-shadow:
+      inset 0 0 0 2px hsl(var(--card)),
+      0 0 0 2px hsl(var(--card));
+  }
+
+  .pixel-button {
+    @apply pixel-border bg-card text-card-foreground font-pixel;
+    @apply hover:opacity-80 active:scale-95 transition-all duration-150;
+    @apply active:translate-x-[2px] active:translate-y-[2px];
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 0.875rem; /* 14px base */
+  }
+
+  /* Mobile-first font sizing and touch targets */
+  @media (max-width: 640px) {
+    .pixel-button {
+      font-size: 1rem; /* 16px on mobile */
+      min-height: 48px;
+      padding: 14px 18px;
+    }
+  }
+
+  .speech-bubble {
+    word-wrap: break-word;
+    font-size: 0.875rem; /* 14px base */
+    line-height: 1.5;
+    font-weight: 500; /* Medium weight for better readability */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* High contrast shadow */
+    border-width: 2px; /* Thicker border for better definition */
+    position: relative;
+  }
+
+  /* Mobile-first font sizing for speech bubbles */
+  @media (max-width: 640px) {
+    .speech-bubble {
+      font-size: 1.25rem; /* 20px on mobile as requested */
+      font-weight: 600; /* Bold on mobile */
+      line-height: 1.4;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9); /* Stronger shadow on mobile */
+    }
+  }
+
+  .speech-bubble-user {
+    @apply speech-bubble;
+    background: hsl(var(--bubble-user));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .speech-bubble-ai {
+    @apply speech-bubble;
+    background: hsl(var(--bubble-ai));
+    color: hsl(var(--accent-foreground));
+  }
+
+  .speech-bubble-mod {
+    @apply speech-bubble;
+    background: hsl(var(--bubble-mod));
+    color: hsl(var(--secondary-foreground));
+  }
+
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid currentColor;
+  }
+
+  .speech-bubble-rtl::after {
+    left: auto;
+    right: 20px;
+  }
+
+  .crt-effect {
+    position: relative;
+  }
+
+  .crt-effect::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+  }
+
+  .pixel-panel {
+    @apply pixel-border bg-card text-card-foreground;
+  }
+
+  .pixel-input {
+    @apply pixel-border bg-input text-white font-pixel;
+    @apply focus:ring-2 focus:ring-ring focus:outline-none;
+    font-size: 0.875rem; /* 14px base */
+    resize: none;
+    overflow-y: auto;
+  }
+
+  /* Mobile-first compact input sizing */
+  @media (max-width: 640px) {
+    .pixel-input {
+      font-size: 1rem; /* 16px to prevent zoom on iOS */
+      height: 2.5rem; /* h-10 equivalent */
+      padding: 0.5rem 0.75rem; /* px-3 py-2 */
+      max-height: 6rem; /* max-h-24 equivalent */
+    }
+  }
+
+  @media (min-width: 641px) {
+    .pixel-input {
+      padding: 12px 16px;
+      min-height: 44px;
+    }
+  }
+
+  /* Keyboard safe area support */
+  .keyboard-safe-area {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Mobile-specific optimizations */
+  @media (max-width: 600px) {
+    /* Override any conflicting body styles for mobile */
+    body {
+      overflow: auto !important; /* Allow scrolling on mobile */
+    }
+  }
+
+  .animated-clouds {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath d='M50 50c0-10 10-20 20-20s20 10 20 20h10c0-10 10-20 20-20s20 10 20 20h10c0-10 10-20 20-20s20 10 20 20h100' stroke='white' stroke-width='4' fill='none'/%3E%3C/svg%3E")
+      repeat-x;
+    animation: clouds 20s linear infinite;
+  }
+
+  @keyframes clouds {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 400px 0;
+    }
+  }
+
+  .grass-pattern {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M0 20h8l2-10 2 10h8l2-10 2 10h8l2-10 2 10h8' stroke='%23228B22' stroke-width='2' fill='none'/%3E%3C/svg%3E")
+      repeat-x bottom;
+  }
+
+  /* Mobile chat input styling */
+  .mobile-chat-input::placeholder {
+    color: black !important;
+    opacity: 0.6;
+    font-size: clamp(13px, 2.5vw, 16px);
+  }
+
+  /* Responsive chat bubble text */
+  .chat-bubble-responsive {
+    font-size: clamp(10px, 2.5vw, 10px);
+    line-height: 1.4;
+  }
+
+  /* Responsive username text */
+  .chat-username-responsive {
+    font-size: clamp(11px, 2.8vw, 12px);
+  }
+
+  /* Responsive timestamp text */
+  .chat-timestamp-responsive {
+    font-size: clamp(10px, 2.5vw, 11px);
+  }
+
+  /* Timer responsive text */
+  .timer-responsive {
+    font-size: clamp(12px, 2.5vw, 13px);
+  }
+
+  /* Mobile-first responsive font sizes for chat interface */
+  @media (max-width: 600px) {
+    .chat-bubble-responsive {
+      font-size: 10px !important;
+      line-height: 1.4;
+    }
+
+    .chat-username-responsive {
+      font-size: 10px !important;
+      font-weight: bold;
+    }
+
+    .chat-timestamp-responsive {
+      font-size: 10px !important;
+    }
+
+    .timer-responsive {
+      font-size: 10px !important;
+      font-weight: bold !important;
+      color: red !important;
+    }
+
+    .mobile-chat-input {
+      font-size: 10px !important;
+      color: #000 !important;
+      max-height: 38px !important;
+      padding: 4px 6px !important;
+    }
+
+    .mobile-chat-input::placeholder {
+      font-size: 10px !important;
+      color: #000 !important;
+    }
+
+    /* Touch-friendly controls */
+    .touch-button {
+      min-height: 44px !important;
+      min-width: 44px !important;
+      padding: 8px 12px !important;
+      transform: scale(1);
+      transition: transform 0.1s ease;
+    }
+
+    .touch-button:active {
+      transform: scale(0.95) !important;
+    }
+
+    .button-gap {
+      gap: 16px !important;
+    }
+
+    /* Mobile layout classes */
+    .mobile-chat-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mobile-messages-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: var(--input-height);
+    }
+
+    .mobile-input-bar,
+    .input-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: var(--input-height);
+      z-index: 10;
+      background: hsl(var(--background));
+      border-top: 2px solid hsl(var(--border));
+      padding: 12px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-timer-bar {
+      max-height: 24px;
+      padding: 4px 12px;
+    }
+  }
+
+  /* Desktop overrides */
+  @media (min-width: 601px) {
+    .chat-bubble-responsive {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .chat-username-responsive {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .chat-timestamp-responsive {
+      font-size: 12px;
+    }
+
+    .timer-responsive {
+      font-size: 14px;
+    }
+
+    .mobile-chat-input {
+      font-size: 14px;
+      color: inherit;
+    }
+  }
+}
