@@ -1,6 +1,6 @@
 # Story Twister 
 
-A collaborative story-writing app with AI-powered plot twists. Join teams, write stories together, and watch AI add unexpected twists every 2 user contributions.
+A collaborative story-writing web app with AI-powered plot twists. Join teams, write stories together, and watch AI add unexpected twists every 2 user contributions.
 
 **Tech Stack**: 
 React 
