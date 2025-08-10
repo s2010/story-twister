@@ -19,8 +19,7 @@ docker compose up -d --build
 ```
 
 **Access**: 
-http://localhost:5173 (Frontend)
-http://localhost:8001 (API)
+
 
 **Usage**: 
 Enter nickname + team code → Join session → Start writing collaborative stories!
