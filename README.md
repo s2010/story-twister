@@ -1,4 +1,4 @@
-# Story Twister 🎭
+# Story Twister 
 
 A collaborative story-writing app with AI-powered plot twists. Join teams, write stories together, and watch AI add unexpected twists every 2 user contributions.
 
@@ -10,7 +10,7 @@ FastAPI
 PostgreSQL 
 Docker
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 git clone <repository-url>
