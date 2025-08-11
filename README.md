@@ -1,4 +1,4 @@
-# Story Twister 
+# Story Twister (حبكه)
 
 A collaborative story-writing web app with AI-powered plot twists. Join teams, write stories together, and watch AI add unexpected twists every 2 user contributions.
 
@@ -15,7 +15,7 @@ Docker
 ```bash
 git clone <repository-url>
 cd story-twister
-docker compose up -d --build
+docker-compose up -d --build
 ```
 
 **Access**: 
