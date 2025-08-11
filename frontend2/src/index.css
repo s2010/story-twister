@@ -2,6 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Pixel AE Font - Arabic & English Pixel Font */
+@font-face {
+  font-family: 'Pixel AE';
+  src: url('/fonts/PixelAE-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pixel AE';
+  src: url('/fonts/PixelAE-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-pixel {
+  font-family: 'Pixel AE', 'Press Start 2P', monospace !important;
+}
+
+/* Bold text support for Pixel AE font */
+.font-pixel.font-bold,
+.font-pixel strong,
+.font-pixel b,
+h1.font-pixel,
+h2.font-pixel,
+h3.font-pixel,
+h4.font-pixel,
+h5.font-pixel,
+h6.font-pixel {
+  font-weight: bold !important;
+}
+
+/* RTL Support for Arabic Language - Minimal and Safe */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+/* Only apply RTL to text content, not layout structure */
+[dir="rtl"] .font-pixel {
+  text-align: right;
+}
+
+/* RTL for form inputs only */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] textarea {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Keep navigation and buttons in their original layout */
+[dir="rtl"] nav,
+[dir="rtl"] .flex.items-center.justify-between {
+  direction: ltr;
+}
+
+/* Ensure header layout stays intact */
+[dir="rtl"] header .flex {
+  direction: ltr;
+}
+
 /* Pixel Art Design System for AI Storytelling Game
 All colors MUST be HSL.
 */

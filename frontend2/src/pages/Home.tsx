@@ -9,8 +9,22 @@ import {
   PageContent,
 } from "@/ui";
 import { Sparkles, Users, Zap, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  const { t, ready } = useTranslation();
+  
+  // Don't render until i18n is ready
+  if (!ready) {
+    return (
+      <PageContent className="py-8">
+        <div className="text-center">
+          <h1 className="font-pixel text-2xl mb-4">🎮 Loading...</h1>
+        </div>
+      </PageContent>
+    );
+  }
+  
   return (
     <PageContent className="py-8">
       {/* Hero Section */}
@@ -27,16 +41,12 @@ const Home = () => {
 
           {/* Hero Title */}
           <h1 className="font-pixel text-2xl sm:text-3xl md:text-4xl leading-tight mb-4 relative z-10">
-            <span className="text-primary">Story</span>
-            <span className="text-foreground">Bot</span>
-            <br />
-            <span className="text-sm sm:text-base md:text-lg">Game</span>
+            {t('home.title')}
           </h1>
 
           {/* Tagline */}
           <p className="font-mono text-sm sm:text-base text-muted-foreground max-w-md mx-auto leading-relaxed">
-            Collaborate with friends and AI to create epic tales! Take turns
-            writing sentences while our bot adds surprising plot twists.
+            {t('home.subtitle')}
           </p>
         </div>
 
@@ -45,7 +55,7 @@ const Home = () => {
           <Link to="/team-select">
             <PixelButton size="lg" className="w-full sm:w-auto">
               <Users className="w-4 h-4 mr-2" />
-              Start Playing
+              {t('home.joinTeam')}
             </PixelButton>
           </Link>
           <Link to="/leaderboard">
@@ -55,7 +65,7 @@ const Home = () => {
               className="w-full sm:w-auto"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              View Leaderboard
+              {t('header.leaderboard')}
             </PixelButton>
           </Link>
         </div>
@@ -64,12 +74,12 @@ const Home = () => {
       {/* Quick How to Play Instructions */}
       <div className="pixel-panel p-4 text-sm font-mono space-y-2 max-w-md mx-auto mb-8 border-2 border-primary/20 bg-background/80">
         <p className="text-primary">
-          🎯 <strong>How to play:</strong>
+          {t('home.howToPlay')}
         </p>
-        <p>1. Join or create a team</p>
-        <p>2. Take turns adding sentences to your story</p>
-        <p>3. AI will inject surprise twists</p>
-        <p>4. Collaborate to create epic tales!</p>
+        <p>{t('home.step1')}</p>
+        <p>{t('home.step2')}</p>
+        <p>{t('home.step3')}</p>
+        <p>{t('home.step4')}</p>
       </div>
 
       {/* How to Play Card */}

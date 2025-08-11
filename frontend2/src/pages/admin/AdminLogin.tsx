@@ -163,9 +163,11 @@ export default function AdminLogin() {
                         e.key === "Enter" && handleTokenLogin()
                       }
                     />
-                    <p className="text-xs text-muted-foreground font-mono mt-1">
-                      Development token: dev-admin-token
-                    </p>
+                    {import.meta.env.VITE_NODE_ENV !== 'production' && (
+                      <p className="text-xs text-muted-foreground font-mono mt-1">
+                        Development token: dev-admin-token
+                      </p>
+                    )}
                   </div>
 
                   <PixelButton
@@ -218,9 +220,11 @@ export default function AdminLogin() {
                     {isLoading ? "Authenticating..." : "Login"}
                   </PixelButton>
 
-                  <p className="text-xs text-muted-foreground font-mono text-center">
-                    Default: admin / ChangeMe123!
-                  </p>
+                  {import.meta.env.VITE_NODE_ENV !== 'production' && (
+                    <p className="text-xs text-muted-foreground font-mono text-center">
+                      Default: admin / ChangeMe123!
+                    </p>
+                  )}
                 </div>
               )}
 

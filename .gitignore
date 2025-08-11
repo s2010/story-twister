@@ -123,3 +123,5 @@ test-results/
 playwright-report/
 test-results.json
 trace.zip
+.PRODUCTION_DEPLOYMENT.md
+.gitignore

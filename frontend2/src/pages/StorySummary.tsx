@@ -20,12 +20,25 @@ import {
 } from "@/ui";
 import { apiClient, storage } from "@/api/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export default function StorySummary() {
+  const { t, ready } = useTranslation();
   const { teamId } = useParams<{ teamId: string }>();
   const [summary, setSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Don't render until i18n is ready
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-sky-400 to-sky-300 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="font-pixel text-2xl mb-4">🎮 Loading...</h1>
+        </div>
+      </div>
+    );
+  }
 
   // Real story stats from backend
   const [stats, setStats] = useState({
@@ -38,8 +51,8 @@ export default function StorySummary() {
   const handleCopyText = () => {
     navigator.clipboard.writeText(summary);
     toast({
-      title: "Copied!",
-      description: "Story text copied to clipboard.",
+      title: t("common.ok"),
+      description: t("storySummary.loading"),
     });
   };
 
@@ -54,8 +67,8 @@ export default function StorySummary() {
       // Fallback: copy URL to clipboard
       navigator.clipboard.writeText(window.location.href);
       toast({
-        title: "Link Copied!",
-        description: "Story link copied to clipboard.",
+        title: t("common.ok"),
+        description: t("storySummary.loading"),
       });
     }
   };

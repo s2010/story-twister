@@ -1,8 +1,3 @@
-/**
- * API Client for Story Twister Frontend2
- * Handles Event Mode headers and localStorage integration safely
- */
-
 // Get base URL from environment
 const API_BASE_URL =
   (import.meta as any).env?.VITE_API_URL || "http://localhost:8001";
@@ -12,10 +7,6 @@ const CACHE_BUST = Date.now();
 
 // API Client initialized
 
-/**
- * Safely get value from localStorage without JSON.parse
- * Returns null if key doesn't exist or is empty
- */
 function getStorageValue(key: string): string | null {
   try {
     const value = localStorage.getItem(key);
@@ -26,9 +17,7 @@ function getStorageValue(key: string): string | null {
   }
 }
 
-/**
- * Safely set value to localStorage
- */
+
 function setStorageValue(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
@@ -37,9 +26,7 @@ function setStorageValue(key: string, value: string): void {
   }
 }
 
-/**
- * Generate Event headers for API requests
- */
+
 function getEventHeaders(): Record<string, string> {
   const nickname = getStorageValue("nickname") || "Anonymous";
   const teamCode = getStorageValue("teamCode") || "DEFAULT";
@@ -56,9 +43,7 @@ function getEventHeaders(): Record<string, string> {
   };
 }
 
-/**
- * Generic API request function
- */
+
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},

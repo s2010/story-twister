@@ -5,8 +5,10 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { apiClient, storage } from "@/api/client";
 import { useToast } from "@/hooks/use-toast";
 import { Gamepad2, Users, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function TeamSelect() {
+  const { t, ready } = useTranslation();
   const [teamId, setTeamId] = useState("");
   const [username, setUsername] = useLocalStorage("username", "");
   const [tempUsername, setTempUsername] = useState("");
@@ -17,6 +19,20 @@ export default function TeamSelect() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Don't render until i18n is ready
+  if (!ready) {
+    return (
+      <div>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-b from-sky-400 to-sky-300 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="font-pixel text-2xl mb-4">🎮 Loading...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Handle URL parameters for prefill and focus
   useEffect(() => {
@@ -36,8 +52,8 @@ export default function TeamSelect() {
     e.preventDefault();
     if (!teamId.trim() || !tempUsername.trim()) {
       toast({
-        title: "Missing Information",
-        description: "Please enter both username and team ID.",
+        title: t("teamSelect.missingInfo"),
+        description: t("teamSelect.missingInfoDesc"),
         variant: "destructive",
       });
       return;
@@ -66,15 +82,15 @@ export default function TeamSelect() {
       navigate(`/room/${encodedTeamCode}`);
 
       toast({
-        title: "Joined Successfully!",
-        description: `Welcome to team ${cleanTeamId}`,
+        title: t("teamSelect.joinSuccess"),
+        description: `${t("teamSelect.joinSuccess")} ${cleanTeamId}`,
       });
     } catch (error) {
       console.error("❌ Join failed:", error);
       toast({
-        title: "Join Failed",
+        title: t("teamSelect.joinError"),
         description:
-          error instanceof Error ? error.message : "Failed to join session",
+          error instanceof Error ? error.message : t("teamSelect.joinError"),
         variant: "destructive",
       });
     } finally {
@@ -130,19 +146,17 @@ export default function TeamSelect() {
             <div className="inline-flex items-center gap-3 mb-4">
               <Gamepad2 size={32} className="text-primary" />
               <h1 className="font-pixel text-2xl md:text-3xl animate-bounce hover:scale-105 transition-all duration-500 cursor-pointer select-none bg-gradient-to-r from-slate-700 via-gray-800 to-slate-900 bg-clip-text text-transparent animate-pulse">
-                AI Storytelling Game
+                {t("teamSelect.title")}
               </h1>
               <Sparkles size={32} className="text-accent" />
             </div>
 
             <p className="font-mono text-lg text-muted-foreground mb-6 leading-relaxed relative">
               <span className="absolute inset-0 text-white opacity-50 blur-sm">
-                Join your team and create epic stories together with AI
-                assistance!
+                {t("home.subtitle")}
               </span>
-              <span className="relative z-10">
-                Join your team and create epic stories together with AI
-                assistance!
+              <span className="relative z-10 font-bold">
+                {t("home.subtitle")}
               </span>
             </p>
           </div>
@@ -155,7 +169,7 @@ export default function TeamSelect() {
                   htmlFor="username"
                   className="block font-pixel text-sm mb-2"
                 >
-                  Enter User Name
+                  {t("teamSelect.enterUsername")}
                 </label>
                 <input
                   id="username"
@@ -163,7 +177,7 @@ export default function TeamSelect() {
                   value={tempUsername}
                   onChange={(e) => setTempUsername(e.target.value)}
                   className="w-full pixel-input"
-                  placeholder="Enter your username..."
+                  placeholder={t("teamSelect.usernamePlaceholder")}
                   required
                 />
               </div>
@@ -173,7 +187,7 @@ export default function TeamSelect() {
                   htmlFor="teamId"
                   className="block font-pixel text-sm mb-2"
                 >
-                  Team ID
+                  {t("teamSelect.teamId")}
                 </label>
                 <input
                   id="teamId"
@@ -181,7 +195,7 @@ export default function TeamSelect() {
                   value={teamId}
                   onChange={(e) => setTeamId(e.target.value)}
                   className="w-full pixel-input"
-                  placeholder="Enter your team ID..."
+                  placeholder={t("teamSelect.teamIdPlaceholder")}
                   required
                 />
               </div>
@@ -191,7 +205,7 @@ export default function TeamSelect() {
                 className="w-full pixel-button bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!teamId.trim() || !tempUsername.trim() || isJoining}
               >
-                {isJoining ? "🔄 Joining..." : "🚀 Join Team"}
+                {isJoining ? `🔄 ${t("teamSelect.joining")}` : t("teamSelect.joinTeam")}
               </button>
             </form>
           </div>
@@ -199,12 +213,12 @@ export default function TeamSelect() {
           {/* Quick How to Play Instructions */}
           <div className="pixel-panel p-4 text-sm font-mono space-y-2 max-w-md mx-auto mb-6">
             <p>
-              🎯 <strong>How to play:</strong>
+              {t("teamSelect.howToPlay")}
             </p>
-            <p>1. Join or create a team</p>
-            <p>2. Take turns adding sentences to your story</p>
-            <p>3. AI will inject surprise twists</p>
-            <p>4. Collaborate to create epic tales!</p>
+            <p>{t("teamSelect.step1")}</p>
+            <p>{t("teamSelect.step2")}</p>
+            <p>{t("teamSelect.step3")}</p>
+            <p>{t("teamSelect.step4")}</p>
           </div>
 
           {/* Username Dialog */}
@@ -214,14 +228,14 @@ export default function TeamSelect() {
                 <form onSubmit={handleUsernameSubmit} className="space-y-6">
                   <h2 className="font-pixel text-lg sm:text-xl mb-4 flex items-center gap-2">
                     <Users size={20} />
-                    Enter Your Username
+                    {t("teamSelect.enterUsername")}
                   </h2>
                   <input
                     type="text"
                     value={tempUsername}
                     onChange={(e) => setTempUsername(e.target.value)}
                     className="w-full pixel-input"
-                    placeholder="Your username..."
+                    placeholder={t("teamSelect.usernamePlaceholder")}
                     maxLength={20}
                     required
                     autoFocus
@@ -231,7 +245,7 @@ export default function TeamSelect() {
                     className="w-full pixel-button bg-primary text-primary-foreground hover:bg-primary/90"
                     disabled={!tempUsername.trim()}
                   >
-                    🚀 Join Team
+                    {t("teamSelect.joinTeam")}
                   </button>
                 </form>
               </div>

@@ -3,6 +3,7 @@ import uuid
 from uuid import UUID
 import os
 import random
+import re
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,20 +33,58 @@ try:
 except ImportError:
     print("⚠️ Groq library not installed, using fallback twists")
 
-# Predefined starter prompts
-STARTER_PROMPTS = [
-    "In a world where dreams become reality, a young inventor discovers their latest creation has unexpected consequences...",
-    "The last library on Earth holds a secret that could change everything, but only those who can solve its ancient riddle may enter...",
-    "When the city's clocks all stop at midnight, time itself begins to unravel, and only a group of unlikely heroes can restore order...",
-    "A mysterious letter arrives with no return address, containing a map to a place that shouldn't exist...",
-    "In a small town where everyone knows everyone, a stranger arrives who seems to know secrets that no one has ever shared...",
-    "The old music box in the attic plays a melody that opens doorways to other worlds...",
-    "A detective investigating a series of impossible crimes discovers that the laws of physics don't apply to the perpetrator...",
-    "When the aurora borealis appears in the middle of summer, it brings with it visitors from a realm beyond the stars..."
+# Arabic starter prompts for traditional storytelling
+ARABIC_STARTER_PROMPTS = [
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كان هناك شاب يدعى أحمد يعيش في قرية صغيرة على ضفاف النهر...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كانت هناك أميرة جميلة تسكن في قصر عالٍ محاط بالحدائق الساحرة...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كان هناك تاجر حكيم يسافر عبر الصحراء الشاسعة...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كان هناك صياد فقير يعيش مع زوجته في كوخ صغير...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كانت هناك مدينة عظيمة تشتهر بأسواقها النابضة بالحياة...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كان هناك حكيم عجوز يسكن في كهف على قمة الجبل...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كانت هناك فتاة ذكية تحب قراءة الكتب القديمة...",
+    "كان يامكان في قديم الزمان وسالف العصر والآوان، كان هناك ملك عادل يحكم مملكة واسعة بالحكمة والعدل..."
+]
+
+# English starter prompts for traditional storytelling
+ENGLISH_STARTER_PROMPTS = [
+    "Once upon a time, in a land far, far away, there lived a young adventurer named Alex who dreamed of exploring distant kingdoms...",
+    "In the days of old, when magic still flowed through the world, there was a beautiful princess who lived in a tall castle surrounded by enchanted gardens...",
+    "Long ago, in times forgotten, there was a wise merchant who traveled across vast deserts in search of rare treasures...",
+    "Once upon a time, there was a poor fisherman who lived with his wife in a small cottage by the sea...",
+    "In ancient times, there was a great city famous for its bustling markets and vibrant life...",
+    "Once upon a time, there was an old sage who lived in a cave atop the highest mountain...",
+    "Long ago, there was a clever young woman who loved reading ancient books and solving mysteries...",
+    "In the olden days, there was a just king who ruled a vast kingdom with wisdom and fairness..."
 ]
 
 # Session duration in seconds (10 minutes)
 SESSION_DURATION_SECONDS = 10 * 60  # 10 minutes - fully tested and verified
+
+def detect_language(text: str) -> str:
+    """
+    Detect if text is primarily Arabic or English
+    Returns 'ar' for Arabic, 'en' for English
+    """
+    if not text:
+        return 'en'
+    
+    # Count Arabic characters (Unicode range for Arabic script)
+    arabic_chars = len(re.findall(r'[\u0600-\u06FF]', text))
+    # Count English characters (basic Latin alphabet)
+    english_chars = len(re.findall(r'[a-zA-Z]', text))
+    
+    # If more than 30% Arabic characters, consider it Arabic
+    total_chars = len(text.replace(' ', '').replace('\n', '').replace('\t', ''))
+    if total_chars == 0:
+        return 'en'
+    
+    arabic_ratio = arabic_chars / total_chars
+    
+    # If Arabic ratio is significant (>30%) or more Arabic than English chars, use Arabic
+    if arabic_ratio > 0.3 or arabic_chars > english_chars:
+        return 'ar'
+    else:
+        return 'en'
 
 app = FastAPI(title="Story Twister API", version="0.1.0")
 
@@ -298,8 +337,16 @@ async def create_story(
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
     
-    # Use provided initial_prompt or select random starter prompt
-    starter_prompt = story_data.initial_prompt or random.choice(STARTER_PROMPTS)
+    # Use provided initial_prompt or select language-appropriate starter prompt
+    if story_data.initial_prompt:
+        starter_prompt = story_data.initial_prompt
+    else:
+        # Detect language from story title to choose appropriate starter prompt
+        detected_lang = detect_language(story_data.title)
+        if detected_lang == 'ar':
+            starter_prompt = random.choice(ARABIC_STARTER_PROMPTS)
+        else:
+            starter_prompt = random.choice(ENGLISH_STARTER_PROMPTS)
     
     # Create story with timer start
     now = datetime.utcnow()
@@ -470,23 +517,52 @@ async def add_sentence(
     return {"message": "Sentence added successfully", "turn_number": new_turn_number}
 
 async def generate_ai_twist(story_content: str) -> str:
-    """Generate an AI twist using Groq API or fallback to canned twist"""
+    """Generate an AI twist using Mistral Saba 24B model, detecting language from story content"""
+    # Detect the primary language of the story content
+    detected_lang = detect_language(story_content)
+    
     if not GROQ_CLIENT:
-        return "🌪️ Suddenly, the unexpected happened and everything changed..."
+        # Language-specific fallback twists
+        if detected_lang == 'ar':
+            arabic_fallbacks = [
+                "🌪️ وفجأة، ظهر من العدم رجل غامض يحمل مفتاحاً ذهبياً...",
+                "🌪️ وإذا بالأرض تهتز وتنفتح عن كنز مدفون منذ قرون...",
+                "🌪️ وفي تلك اللحظة، سمع صوتاً يناديه من السماء...",
+                "🌪️ وبينما كان يمشي، رأى ضوءاً ساطعاً يخرج من الغابة...",
+                "🌪️ وفجأة، تحول كل شيء حوله إلى ذهب خالص..."
+            ]
+            return random.choice(arabic_fallbacks)
+        else:
+            english_fallbacks = [
+                "🌪️ Suddenly, a mysterious figure emerged from the shadows carrying a golden key...",
+                "🌪️ At that moment, the ground began to shake and revealed a hidden treasure...",
+                "🌪️ Just then, a voice called out from the heavens above...",
+                "🌪️ As they walked, a brilliant light appeared from the forest...",
+                "🌪️ Suddenly, everything around them turned to pure gold..."
+            ]
+            return random.choice(english_fallbacks)
     
     try:
-        # Create a prompt for the AI to generate a twist
-        prompt = f"""You are a creative storytelling assistant. Given the following story excerpt, generate a single dramatic plot twist sentence that would surprise readers and change the direction of the story. The twist should be unexpected but logical within the story context.
+        # Create language-specific prompt for Mistral Saba 24B
+        if detected_lang == 'ar':
+            prompt = f"""أنت مساعد إبداعي لكتابة القصص باللغة العربية. بناءً على مقطع القصة التالي، اكتب جملة واحدة تحتوي على منعطف درامي مفاجئ يغير مجرى القصة. يجب أن يكون المنعطف غير متوقع ولكن منطقي ضمن سياق القصة.
+
+القصة حتى الآن:
+{story_content}
+
+اكتب فقط جملة المنعطف باللغة العربية (بدون علامات اقتباس أو تفسيرات):"""
+        else:
+            prompt = f"""You are a creative storytelling assistant. Given the following story excerpt, generate a single dramatic plot twist sentence that would surprise readers and change the direction of the story. The twist should be unexpected but logical within the story context.
 
 Story so far:
 {story_content}
 
-Generate only the twist sentence (no quotes, no explanations):"""
+Generate only the twist sentence in English (no quotes, no explanations):"""
 
         response = GROQ_CLIENT.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama3-70b-8192",
-            max_tokens=100,
+            model="mistral-saba-24b",
+            max_tokens=150,
             temperature=0.8
         )
         
@@ -494,8 +570,22 @@ Generate only the twist sentence (no quotes, no explanations):"""
         return f"🌪️ {twist}" if not twist.startswith("🌪️") else twist
         
     except Exception as e:
-        print(f"Groq API error: {e}")
-        return "🌪️ Suddenly, the unexpected happened and everything changed..."
+        print(f"Mistral API error: {e}")
+        # Language-specific fallback on error
+        if detected_lang == 'ar':
+            arabic_fallbacks = [
+                "🌪️ وفجأة، ظهر من العدم رجل غامض يحمل مفتاحاً ذهبياً...",
+                "🌪️ وإذا بالأرض تهتز وتنفتح عن كنز مدفون منذ قرون...",
+                "🌪️ وفي تلك اللحظة، سمع صوتاً يناديه من السماء..."
+            ]
+            return random.choice(arabic_fallbacks)
+        else:
+            english_fallbacks = [
+                "🌪️ Suddenly, a mysterious figure emerged from the shadows...",
+                "🌪️ At that moment, the ground began to shake and revealed a hidden secret...",
+                "🌪️ Just then, a voice called out from somewhere unexpected..."
+            ]
+            return random.choice(english_fallbacks)
 
 @app.post("/api/v1/stories/twist")
 async def add_twist(
@@ -596,9 +686,26 @@ async def debug_test():
 async def generate_session_analysis(story_content: str, turns: list, session_duration_minutes: int) -> dict:
     """Generate AI-powered session analysis with creativity, engagement, and collaboration scores"""
     
+    # Detect the primary language of the story content
+    detected_lang = detect_language(story_content)
+    
     # Calculate basic metrics
     total_turns = len([t for t in turns if not t.is_twist])
     unique_participants = len(set([t.author_name for t in turns if not t.is_twist and t.author_name != "StoryBot"]))
+    
+    # If no user contributions, return zero scores
+    if total_turns == 0 or unique_participants == 0:
+        return {
+            "creativity_score": 0,
+            "engagement_score": 0,
+            "collaboration_score": 0,
+            "creativity_feedback": "No user contributions to analyze.",
+            "engagement_feedback": "No user engagement recorded.",
+            "collaboration_feedback": "No collaboration occurred.",
+            "total_turns": total_turns,
+            "unique_participants": unique_participants,
+            "session_duration_minutes": session_duration_minutes
+        }
     
     # Creativity Analysis
     creativity_score = min(100, max(20, 
@@ -633,26 +740,44 @@ async def generate_session_analysis(story_content: str, turns: list, session_dur
     # Generate AI feedback if Groq is available
     if GROQ_CLIENT:
         try:
-            analysis_prompt = f"""
-            Analyze this collaborative storytelling session and provide brief, encouraging feedback:
+            # Create language-specific analysis prompt
+            if detected_lang == 'ar':
+                analysis_prompt = f"""
+                حلل جلسة سرد القصص التعاونية هذه وقدم تعليقات موجزة ومشجعة:
 
-            Story Content: {story_content[:500]}...
-            Total Turns: {total_turns}
-            Participants: {unique_participants}
-            Duration: {session_duration_minutes} minutes
-            
-            Provide 2-3 sentence feedback for each category:
-            1. Creativity (score: {creativity_score}/100)
-            2. Engagement (score: {engagement_score}/100) 
-            3. Collaboration (score: {collaboration_score}/100)
-            
-            Keep feedback positive and constructive.
-            """
+                محتوى القصة: {story_content[:500]}...
+                إجمالي الأدوار: {total_turns}
+                المشاركون: {unique_participants}
+                المدة: {session_duration_minutes} دقيقة
+                
+                قدم تعليقات من جملتين إلى ثلاث جمل لكل فئة:
+                1. الإبداع (النتيجة: {creativity_score}/100)
+                2. المشاركة (النتيجة: {engagement_score}/100) 
+                3. التعاون (النتيجة: {collaboration_score}/100)
+                
+                اجعل التعليقات إيجابية وبناءة باللغة العربية.
+                """
+            else:
+                analysis_prompt = f"""
+                Analyze this collaborative storytelling session and provide brief, encouraging feedback:
+
+                Story Content: {story_content[:500]}...
+                Total Turns: {total_turns}
+                Participants: {unique_participants}
+                Duration: {session_duration_minutes} minutes
+                
+                Provide 2-3 sentence feedback for each category:
+                1. Creativity (score: {creativity_score}/100)
+                2. Engagement (score: {engagement_score}/100) 
+                3. Collaboration (score: {collaboration_score}/100)
+                
+                Keep feedback positive and constructive in English.
+                """
             
             completion = GROQ_CLIENT.chat.completions.create(
-                model="llama3-70b-8192",
+                model="mistral-saba-24b",
                 messages=[{"role": "user", "content": analysis_prompt}],
-                max_tokens=300,
+                max_tokens=400,
                 temperature=0.7
             )
             
@@ -668,15 +793,25 @@ async def generate_session_analysis(story_content: str, turns: list, session_dur
             
         except Exception as e:
             print(f"AI feedback generation failed: {e}")
-            # Fallback to template feedback
+            # Language-specific fallback template feedback
+            if detected_lang == 'ar':
+                creativity_feedback = f"مفردات إبداعية رائعة مع {len(set(story_content.split()))} كلمة فريدة! تُظهر القصة خيالاً إبداعياً مميزاً."
+                engagement_feedback = f"مشاركة قوية بمعدل {avg_turns_per_participant:.1f} دور لكل شخص!"
+                collaboration_feedback = f"عمل جماعي ممتاز مع {turn_transitions} انتقال سلس بين {unique_participants} مشارك!"
+            else:
+                creativity_feedback = f"Great creative vocabulary with {len(set(story_content.split()))} unique words! The story shows imaginative storytelling."
+                engagement_feedback = f"Strong participation with {avg_turns_per_participant:.1f} turns per person on average!"
+                collaboration_feedback = f"Excellent teamwork with {turn_transitions} smooth transitions between {unique_participants} participants!"
+    else:
+        # Language-specific fallback feedback when no AI available
+        if detected_lang == 'ar':
+            creativity_feedback = f"مفردات إبداعية رائعة مع {len(set(story_content.split()))} كلمة فريدة! تُظهر القصة خيالاً إبداعياً مميزاً."
+            engagement_feedback = f"مشاركة قوية بمعدل {avg_turns_per_participant:.1f} دور لكل شخص!"
+            collaboration_feedback = f"عمل جماعي ممتاز مع {turn_transitions} انتقال سلس بين {unique_participants} مشارك!"
+        else:
             creativity_feedback = f"Great creative vocabulary with {len(set(story_content.split()))} unique words! The story shows imaginative storytelling."
             engagement_feedback = f"Strong participation with {avg_turns_per_participant:.1f} turns per person on average!"
             collaboration_feedback = f"Excellent teamwork with {turn_transitions} smooth transitions between {unique_participants} participants!"
-    else:
-        # Fallback feedback when no AI available
-        creativity_feedback = f"Great creative vocabulary with {len(set(story_content.split()))} unique words! The story shows imaginative storytelling."
-        engagement_feedback = f"Strong participation with {avg_turns_per_participant:.1f} turns per person on average!"
-        collaboration_feedback = f"Excellent teamwork with {turn_transitions} smooth transitions between {unique_participants} participants!"
     
     return {
         "creativity_score": creativity_score,
@@ -785,8 +920,10 @@ async def get_leaderboard_teams(
 ):
     """Get leaderboard of all teams with their stats"""
     
-    # Get all teams with their stories, turns, and analyses
-    query = select(Team).options(
+    # Get only teams with completed sessions for leaderboard
+    query = select(Team).join(Session).where(
+        Session.status == SessionStatus.COMPLETED
+    ).options(
         selectinload(Team.sessions),
         selectinload(Team.stories).selectinload(Story.turns),
         selectinload(Team.stories).selectinload(Story.analyses)
@@ -798,6 +935,11 @@ async def get_leaderboard_teams(
     leaderboard_teams = []
     
     for team in teams:
+        # Only process teams with completed sessions
+        completed_sessions = [s for s in team.sessions if s.status == SessionStatus.COMPLETED]
+        if not completed_sessions:
+            continue
+            
         # Calculate team stats
         total_stories = 0
         total_turns = 0
@@ -809,11 +951,11 @@ async def get_leaderboard_teams(
         participants = set()
         last_active = None
         
-        # Track session status - get the most recent session
-        session_status = "active"
+        # Track session status - get the most recent completed session
+        session_status = "completed"
         session_ended_at = None
-        if team.sessions:
-            latest_session = max(team.sessions, key=lambda s: s.started_at)
+        if completed_sessions:
+            latest_session = max(completed_sessions, key=lambda s: s.started_at)
             session_status = latest_session.status
             session_ended_at = latest_session.ended_at
         

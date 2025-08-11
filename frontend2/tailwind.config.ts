@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'pixel': ['"Press Start 2P"', 'monospace'],
-				'mono': ['"VT323"', 'monospace']
+				'pixel': ['"IBM Plex Sans Arabic"', '"Press Start 2P"', 'monospace'],
+				'mono': ['"IBM Plex Mono"', 'monospace']
 			},
 			colors: {
 				border: 'hsl(var(--border))',

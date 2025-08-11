@@ -17,8 +17,10 @@ import { StoryMessage, Team } from "@/types/game";
 import { Send, Zap, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function StoryRoom() {
+  const { t, ready } = useTranslation();
   const { teamId } = useParams<{ teamId: string }>();
   const [searchParams] = useSearchParams();
   const isModerator = searchParams.get("mod") === "true";
@@ -48,7 +50,10 @@ export default function StoryRoom() {
   const timer = useTimer({
     duration: 10 * 60, // 10 minutes in seconds
     onExpire: () => {
-      setShowAnalyzerModal(true);
+      // Only show analysis modal if session is still active
+      if (sessionStatus === "active") {
+        setShowAnalyzerModal(true);
+      }
     },
   });
 
@@ -163,8 +168,8 @@ export default function StoryRoom() {
 
         setMessages(convertedMessages);
 
-        // Add welcome system message if this is the first load
-        if (convertedMessages.length === 1) {
+        // Add welcome system message if this is the first load and session is active
+        if (convertedMessages.length === 1 && sessionStatus === "active") {
           setTimeout(() => {
             addSystemMessage(
               "🎭 Welcome to the story! Start collaborating by adding your sentences.",
@@ -207,7 +212,7 @@ export default function StoryRoom() {
     } catch (error) {
       console.error("Failed to load story:", error);
       addSystemMessage(
-        "❌ Failed to load story. Please refresh the page.",
+        `❌ ${t("storyRoom.messageError")}`,
         "error",
       );
 
@@ -239,7 +244,7 @@ export default function StoryRoom() {
         hasStory: !!currentStory,
         storyId: currentStory?.id,
       });
-      addSystemMessage("❌ Cannot send message: story not ready", "error");
+      addSystemMessage(`❌ ${t("storyRoom.messageError")}`, "error");
       return;
     }
 
@@ -491,10 +496,10 @@ export default function StoryRoom() {
                 onChange={(e) => setCurrentSentence(e.target.value)}
                 placeholder={
                   sessionStatus === "completed"
-                    ? "Session ended - chat disabled"
+                    ? t("storyRoom.sessionEnded")
                     : timer.isExpired
-                      ? "Session expired"
-                      : "Add to the story..."
+                      ? t("storyRoom.sessionExpired")
+                      : t("storyRoom.typeMessage")
                 }
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-black"
                 maxLength={200}
@@ -518,7 +523,7 @@ export default function StoryRoom() {
               >
                 <Send size={18} />
                 <span className="hidden sm:inline text-sm font-medium">
-                  {isLoading ? "Sending..." : "Send"}
+                  {isLoading ? t("storyRoom.sending") : t("storyRoom.send")}
                 </span>
               </button>
 
