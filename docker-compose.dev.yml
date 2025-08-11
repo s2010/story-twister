@@ -11,9 +11,9 @@ services:
       - ./frontend2:/app
       - /app/node_modules
     environment:
-      - VITE_API_BASE_URL=https://habkah.alrumahi.site
-      - VITE_NODE_ENV=production
-      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_NODE_ENV=development
+      - NODE_ENV=development
 
   backend:
     build:
@@ -38,7 +38,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=story_twister
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_dev:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  postgres_data_dev:
