@@ -1,6 +1,6 @@
 // Get base URL from environment
 const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_URL || "http://localhost:8001";
+  (import.meta as any).env?.VITE_API_URL || "http://localhost:8000";
 
 // Cache-busting parameter to force fresh requests
 const CACHE_BUST = Date.now();
