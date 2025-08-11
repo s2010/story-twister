@@ -27,6 +27,7 @@ else
     exit 1
 fi
 
+
 # Step 1: Generate production credentials
 echo "🔐 Step 1: Generating production credentials..."
 if [ ! -f ".env" ]; then
