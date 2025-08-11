@@ -14,11 +14,24 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 
+# Check which Docker Compose command is available
+if command -v "docker-compose" &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+    echo "📦 Using legacy docker-compose command"
+elif command -v "docker" &> /dev/null && docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+    echo "📦 Using modern docker compose command"
+else
+    echo "❌ Error: Neither 'docker-compose' nor 'docker compose' is available."
+    echo "   Please install Docker Compose: https://docs.docker.com/compose/install/"
+    exit 1
+fi
+
 # Step 1: Generate production credentials
 echo "🔐 Step 1: Generating production credentials..."
 if [ ! -f ".env" ]; then
     echo "📝 Generating strong admin credentials..."
-    docker-compose exec backend python seed_production_admin.py
+    $DOCKER_COMPOSE exec backend python seed_production_admin.py
     echo "✅ Production credentials generated and saved to .env"
 else
     echo "⚠️  .env file already exists. Skipping credential generation."
@@ -44,7 +57,7 @@ echo "Setting NODE_ENV=production and VITE_NODE_ENV=production..."
 export NODE_ENV=production
 export VITE_NODE_ENV=production
 
-docker-compose build --no-cache
+$DOCKER_COMPOSE build --no-cache
 
 echo "✅ Production containers built successfully"
 
@@ -53,21 +66,21 @@ echo ""
 echo "🗄️  Step 4: Database setup..."
 echo "Starting database and running migrations..."
 
-docker-compose up -d db
+$DOCKER_COMPOSE up -d db
 sleep 5  # Wait for database to be ready
 
-docker-compose up -d backend
+$DOCKER_COMPOSE up -d backend
 sleep 10  # Wait for backend to be ready
 
 echo "Running database migrations..."
-docker-compose exec backend alembic upgrade head
+$DOCKER_COMPOSE exec backend alembic upgrade head
 
 echo "✅ Database migrations completed"
 
 # Step 5: Start all services
 echo ""
 echo "🚀 Step 5: Starting all services..."
-docker-compose up -d
+$DOCKER_COMPOSE up -d
 
 echo "✅ All services started"
 
@@ -123,7 +136,7 @@ echo ""
 echo "📖 For detailed deployment guide, see: PRODUCTION_DEPLOYMENT.md"
 echo ""
 echo "🔧 Useful commands:"
-echo "   View logs: docker-compose logs -f [service]"
-echo "   Restart: docker-compose restart [service]"
-echo "   Stop: docker-compose down"
-echo "   Update: git pull && docker-compose build && docker-compose up -d"
+echo "   View logs: $DOCKER_COMPOSE logs -f [service]"
+echo "   Restart: $DOCKER_COMPOSE restart [service]"
+echo "   Stop: $DOCKER_COMPOSE down"
+echo "   Update: git pull && $DOCKER_COMPOSE build && $DOCKER_COMPOSE up -d"
