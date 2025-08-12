@@ -47,15 +47,23 @@ async def verify_same_origin(request: Request) -> bool:
     origin = request.headers.get('origin')
     host = request.headers.get('host')
     
+    # For production environments, be more permissive with reverse proxy setups
+    # while still maintaining token-based security
     if origin:
         # Check if origin is in allowed origins
-        return origin in ALLOWED_ORIGINS
+        if origin in ALLOWED_ORIGINS:
+            return True
+        # Allow requests from the production domain (Caddy reverse proxy)
+        if 'habkah.alrumahi.site' in origin:
+            return True
     
     # For non-CORS requests, check host header
     if host:
-        allowed_hosts = [origin.replace('http://', '').replace('https://', '') for origin in ALLOWED_ORIGINS]
+        allowed_hosts = [allowed_origin.replace('http://', '').replace('https://', '') for allowed_origin in ALLOWED_ORIGINS]
         # Also allow internal Docker requests (localhost, backend container)
         allowed_hosts.extend(['localhost:8000', '0.0.0.0:8000', 'backend:8000'])
+        # Allow production domain through Caddy reverse proxy
+        allowed_hosts.extend(['habkah.alrumahi.site', 'habkah.alrumahi.site:443'])
         return host in allowed_hosts
     
     # Allow requests without origin/host headers for internal testing
